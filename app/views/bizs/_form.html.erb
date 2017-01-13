@@ -1,0 +1,54 @@
+<%= form_for(@biz) do |f| %>
+  <% if @biz.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@biz.errors.count, "error") %> prohibited this biz from being saved:</h2>
+
+      <ul>
+      <% @biz.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <% model_array = @my_biz.map{|klass| [klass.name, klass.column_names, klass.reflections.keys]} %>
+  <div class="field">
+    <%= f.label :fact %><br>
+    <%= f.select :fact, options_for_select( [ [model_array[1][0], 1], [model_array[2][0], 2], [model_array[3][0], 3], [model_array[4][0], 4], [ model_array[5][0], 5] ], @biz.fact.to_s ), prompt: "Please select Fact table"  %>
+  </div>
+  <div class="field">
+    <table>
+      <thead>
+        <th>Dimension</th>
+        <th>Measurements</th>
+      </thead>
+      <tbody>
+        <tr>
+          <td><%= f.select :dimension_1, options_for_select( @dimensions.each_with_index { |name,idx | [name, idx] }, @biz.dimension_1.to_s ), {prompt: "Select Dimensions"} %></td>
+          <td><%= f.select :measures_1, options_for_select( @measures.each_with_index { |name,idx | [name, idx] }, @biz.measures_1.to_s ), {prompt: "Select Measures"}, { multiple: true, size: 5 } %></td>
+        </tr>
+        <tr>
+          <td><%= f.select :dimension_2, options_for_select( @dimensions.each_with_index { |name,idx | [name, idx] }, @biz.dimension_2.to_s ), {prompt: "Select Dimensions"} %></td>
+          <td><%= f.select :measures_2, options_for_select( @measures.each_with_index { |name,idx | [name, idx] }, @biz.measures_2.to_s ), {prompt: "Select Measures"},  { multiple: true, size: 5 } %></td>
+        </tr>
+        <tr>
+          <td><%= f.select :dimension_3, options_for_select( @dimensions.each_with_index { |name,idx | [name, idx] }, @biz.dimension_3.to_s ), {prompt: "Select Dimensions"} %></td>
+          <td><%= f.select :measures_3, options_for_select( @measures.each_with_index { |name,idx | [name, idx] }, @biz.measures_3.to_s ), {prompt: "Select Measures"},  { multiple: true, size: 5 } %></td>
+        </tr>
+        <tr>
+          <td><%= f.select :dimension_4, options_for_select( @dimensions.each_with_index { |name,idx | [name, idx] }, @biz.dimension_4.to_s ), {prompt: "Select Dimensions"} %></td>
+          <td><%= f.select :measures_4, options_for_select( @measures.each_with_index { |name,idx | [name, idx] }, @biz.measures_4.to_s ), {prompt: "Select Measures"},  { multiple: true, size: 5 } %></td>
+        </tr>
+        <tr>
+          <td><%= f.select :dimension_5, options_for_select( @dimensions.each_with_index { |name,idx | [name, idx] }, @biz.dimension_5.to_s ), {prompt: "Select Dimensions"} %></td>
+          <td><%= f.select :measures_5, options_for_select( @measures.each_with_index { |name,idx | [name, idx] }, @biz.measures_5.to_s ), {prompt: "Select Measures"},  { multiple: true, size: 5 } %></td>
+        </tr>
+
+      </tbody>
+    </table>
+    <% f.label :dimension %><br>
+    <% f.select :dimension, @my_biz.map{|klass| [klass.name, klass.name]}, multiple: true %>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
+</div>

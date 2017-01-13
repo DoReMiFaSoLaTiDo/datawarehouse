@@ -1,0 +1,1 @@
+json.partial! "bizs.js/biz", biz: @biz

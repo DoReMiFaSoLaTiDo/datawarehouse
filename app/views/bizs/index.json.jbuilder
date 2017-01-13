@@ -1,0 +1,1 @@
+json.array! @bizs, partial: 'bizs.js/biz', as: :biz

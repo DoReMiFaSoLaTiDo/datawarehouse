@@ -1,0 +1,14 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Fact:</strong>
+  <%= @biz.fact %>
+</p>
+
+<p>
+  <strong>Dimension:</strong>
+  <%= @biz.dimension %>
+</p>
+
+<%= link_to 'Edit', edit_biz_path(@biz) %> |
+<%= link_to 'Back', bizs_path %>

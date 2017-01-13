@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  total_amt: 9.99
+  salesperson_id: 
+  product_id: 
+  customer_id: 
+
+two:
+  total_amt: 9.99
+  salesperson_id: 
+  product_id: 
+  customer_id: 

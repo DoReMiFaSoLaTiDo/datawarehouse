@@ -1,0 +1,29 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @salesperson.name %>
+</p>
+
+<p>
+  <strong>Gender:</strong>
+  <%= @salesperson.gender %>
+</p>
+
+<p>
+  <strong>Age:</strong>
+  <%= @salesperson.age %>
+</p>
+
+<p>
+  <strong>Height:</strong>
+  <%= @salesperson.height %>
+</p>
+
+<p>
+  <strong>Weight:</strong>
+  <%= @salesperson.weight %>
+</p>
+
+<%= link_to 'Edit', edit_salesperson_path(@salesperson) %> |
+<%= link_to 'Back', salespeople_path %>
