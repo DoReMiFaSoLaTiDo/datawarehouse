@@ -13,7 +13,7 @@
   <% model_array = @my_biz.map{|klass| [klass.name, klass.column_names, klass.reflections.keys]} %>
   <div class="field">
     <%= f.label :fact %><br>
-    <%= f.select :fact, options_for_select( [ [model_array[1][0], 1], [model_array[2][0], 2], [model_array[3][0], 3], [model_array[4][0], 4], [ model_array[5][0], 5] ], @biz.fact.to_s ), prompt: "Please select Fact table"  %>
+    <%= f.select :fact, options_for_select( [ [model_array[1][0], model_array[1][0]], [model_array[2][0],model_array[2][0]], [model_array[3][0], model_array[3][0]], [model_array[4][0], model_array[4][0]], [ model_array[5][0], model_array[5][0]] ], @biz.fact.to_s ), prompt: "Please select Fact table"  %>
   </div>
   <div class="field">
     <table>
@@ -52,7 +52,7 @@
           <td><%= f.select :dimension_5, options_for_select( @dimensions.each_with_index { |name,idx | [name, idx] }, @biz.dimension_5.to_s ), {prompt: "Select Dimensions"}, {:class => "dim_selection"} %></td>
           <td><%= f.select :measures_5, options_for_select( @default_measures.each_with_index { |name,idx | [name, idx] }, @biz.measures_5.to_s ), {prompt: "Select Measures"},  { multiple: true, size: 6 } %></td>
         </tr>
-    </div>
+      </div>
       </tbody>
     </table>
     <% f.label :dimension %><br>

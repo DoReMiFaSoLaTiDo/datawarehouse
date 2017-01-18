@@ -1,6 +1,6 @@
 class BizsController < ApplicationController
   before_action :set_biz, only: [:show, :edit, :update, :destroy]
-  before_action :load_models, only: [:index, :new, :update_measures]
+  before_action :load_models, only: [:index, :new, :update_measures, :show, :edit]
   # GET /bizs.js
   # GET /bizs.js.json
   def index
@@ -15,7 +15,7 @@ class BizsController < ApplicationController
   # GET /bizs.js/1
   # GET /bizs.js/1.json
   def show
-    @measure = @measures[params[:d_value]]
+
   end
 
   # GET /bizs.js/new
@@ -32,8 +32,15 @@ class BizsController < ApplicationController
   # POST /bizs.js
   # POST /bizs.js.json
   def create
-    @biz = Biz.new(biz_params)
-
+    # raise biz_params.inspect
+    @biz = Biz.new(biz_params.tap do |bip|
+      bip["measures_1"].to_s
+      bip["measures_2"].to_s
+      bip["measures_3"].to_s
+      bip["measures_4"].to_s
+      bip["measures_5"].to_s
+    end
+    )
     respond_to do |format|
       if @biz.save
         format.html { redirect_to @biz, notice: 'Biz was successfully created.' }
@@ -47,11 +54,8 @@ class BizsController < ApplicationController
   end
 
   def update_measures
-    # @biz = biz_params || Biz.new
     @measures = get_measures
-    # raise @measures.inspect
     @msrs = @measures.map.with_index {|msr, idx| [msr,idx]}
-    # raise @msrs.inspect
     respond_to do |format|
       format.js
     end
@@ -90,8 +94,8 @@ class BizsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def biz_params
-      raise params.require(:biz).inspect
-      params.require(:biz).permit(:fact, :dimension, :dimension_1, :dimension_2, :dimension_3, :dimension_4, :dimension_5, :measures_1, :measures_2, :measures_3, :measures_4, :measures_5 )
+      # raise params.require(:biz).inspect
+      params.require(:biz).permit(:fact, :dimension, :dimension_1, :dimension_2, :dimension_3, :dimension_4, :dimension_5.to_s, {:measures_1 => []}, {:measures_2 => []}, {:measures_3 => []}, {:measures_4 => []}, { :measures_5=> []} )
     end
 
     def load_models
@@ -109,7 +113,6 @@ class BizsController < ApplicationController
 
     def get_measures
 
-      # raise @msrs_sym.inspect
       return_value = []
       @msrs_sym.each do |msr|
         return_value.push( msr[1]) if msr[0].eql?( params[:d_value].downcase.to_sym ) #if msr.key.eql?(params[:d_value].downcase.to_sym)

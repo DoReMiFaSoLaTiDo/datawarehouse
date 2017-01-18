@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
   get 'bizs/update_measures', as: 'update_measures'
-
+  # get 'bizs/:id/update_measures', as: 'update_measures'
   resources :bizs
   resources :sales
   resources :customers

@@ -2,7 +2,7 @@
 $('.active').empty();
 $('.active').append( $('<option>Select the Measures</option>'));
 <% @msrs.each do |msr| %>
-  $('.active').append($('<option value="<%= msr[1] %>"><%= msr[0] %></option>'));
+  $('.active').append($('<option value="<%= msr[0] %>"><%= msr[0] %></option>'));
 <% end %>
 
 
