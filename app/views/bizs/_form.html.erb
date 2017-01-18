@@ -22,27 +22,37 @@
         <th>Measurements</th>
       </thead>
       <tbody>
+      
+      <div>
         <tr>
-          <td><%= f.select :dimension_1, options_for_select( @dimensions.each_with_index { |name,idx | [name, idx] }, @biz.dimension_1.to_s ), {prompt: "Select Dimensions"} %></td>
-          <td><%= f.select :measures_1, options_for_select( @measures.each_with_index { |name,idx | [name, idx] }, @biz.measures_1.to_s ), {prompt: "Select Measures"}, { multiple: true, size: 5 } %></td>
+          <td><%= f.select :dimension_1, options_for_select( @dimensions.each_with_index { |name,idx | [name, idx] }, @biz.dimension_1.to_s ), {prompt: "Select Dimensions"}, {:class => "dim_selection"} %></td>
+          <td><%= f.select :measures_1, options_for_select( @default_measures.each_with_index { |name,idx | [name, idx] }, @biz.measures_1.to_s ), {prompt: "Select Measures"}, { multiple: true, size: 6, id:"biz_measures_1" } %></td>
         </tr>
+      </div>
+      <div>
         <tr>
-          <td><%= f.select :dimension_2, options_for_select( @dimensions.each_with_index { |name,idx | [name, idx] }, @biz.dimension_2.to_s ), {prompt: "Select Dimensions"} %></td>
-          <td><%= f.select :measures_2, options_for_select( @measures.each_with_index { |name,idx | [name, idx] }, @biz.measures_2.to_s ), {prompt: "Select Measures"},  { multiple: true, size: 5 } %></td>
+          <td><%= f.select :dimension_2, options_for_select( @dimensions.each_with_index { |name,idx | [name, idx] }, @biz.dimension_2.to_s ), {prompt: "Select Dimensions"}, {:class => "dim_selection"} %></td>
+          <td><%= f.select :measures_2, options_for_select( @default_measures.each_with_index { |name,idx | [name, idx] }, @biz.measures_2.to_s ), {prompt: "Select Measures"},  { multiple: true, size: 6 } %></td>
         </tr>
+      </div>
+      <div>
         <tr>
-          <td><%= f.select :dimension_3, options_for_select( @dimensions.each_with_index { |name,idx | [name, idx] }, @biz.dimension_3.to_s ), {prompt: "Select Dimensions"} %></td>
-          <td><%= f.select :measures_3, options_for_select( @measures.each_with_index { |name,idx | [name, idx] }, @biz.measures_3.to_s ), {prompt: "Select Measures"},  { multiple: true, size: 5 } %></td>
+          <td><%= f.select :dimension_3, options_for_select( @dimensions.each_with_index { |name,idx | [name, idx] }, @biz.dimension_3.to_s ), {prompt: "Select Dimensions"}, {:class => "dim_selection"} %></td>
+          <td><%= f.select :measures_3, options_for_select( @default_measures.each_with_index { |name,idx | [name, idx] }, @biz.measures_3.to_s ), {prompt: "Select Measures"},  { multiple: true, size: 6 } %></td>
         </tr>
+      </div>
+      <div>
         <tr>
-          <td><%= f.select :dimension_4, options_for_select( @dimensions.each_with_index { |name,idx | [name, idx] }, @biz.dimension_4.to_s ), {prompt: "Select Dimensions"} %></td>
-          <td><%= f.select :measures_4, options_for_select( @measures.each_with_index { |name,idx | [name, idx] }, @biz.measures_4.to_s ), {prompt: "Select Measures"},  { multiple: true, size: 5 } %></td>
+          <td><%= f.select :dimension_4, options_for_select( @dimensions.each_with_index { |name,idx | [name, idx] }, @biz.dimension_4.to_s ), {prompt: "Select Dimensions"}, {:class => "dim_selection"} %></td>
+          <td><%= f.select :measures_4, options_for_select( @default_measures.each_with_index { |name,idx | [name, idx] }, @biz.measures_4.to_s ), {prompt: "Select Measures"},  { multiple: true, size: 6 } %></td>
         </tr>
+      </div>
+      <div>
         <tr>
-          <td><%= f.select :dimension_5, options_for_select( @dimensions.each_with_index { |name,idx | [name, idx] }, @biz.dimension_5.to_s ), {prompt: "Select Dimensions"} %></td>
-          <td><%= f.select :measures_5, options_for_select( @measures.each_with_index { |name,idx | [name, idx] }, @biz.measures_5.to_s ), {prompt: "Select Measures"},  { multiple: true, size: 5 } %></td>
+          <td><%= f.select :dimension_5, options_for_select( @dimensions.each_with_index { |name,idx | [name, idx] }, @biz.dimension_5.to_s ), {prompt: "Select Dimensions"}, {:class => "dim_selection"} %></td>
+          <td><%= f.select :measures_5, options_for_select( @default_measures.each_with_index { |name,idx | [name, idx] }, @biz.measures_5.to_s ), {prompt: "Select Measures"},  { multiple: true, size: 6 } %></td>
         </tr>
-
+    </div>
       </tbody>
     </table>
     <% f.label :dimension %><br>

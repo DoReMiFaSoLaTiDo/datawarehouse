@@ -1,1 +1,8 @@
-$('#biz_measures_1').html("<%=j render(@measures) %>");
+
+$('.active').empty();
+$('.active').append( $('<option>Select the Measures</option>'));
+<% @msrs.each do |msr| %>
+  $('.active').append($('<option value="<%= msr[1] %>"><%= msr[0] %></option>'));
+<% end %>
+
+

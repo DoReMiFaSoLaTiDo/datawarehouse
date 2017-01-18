@@ -3,76 +3,44 @@
 // # You can use CoffeeScript in this file: http://coffeescript.org/
 //
 //
-// $ ->
-//   $(document).on 'change', '#biz_dimension_1', (evt) ->
-//     $.ajax 'update_measures',
-//       type: 'GET'
-//       dataType: 'script'
-//       data: {
-//         d_value: $("#biz_dimension_1 option:selected").val()
-//       }
-//       error: (jqXHR, textStatus, errorThrown) ->
-//         console.log("AJAX Error: #{textStatus}")
-//       success: (data, textStatus, jqXHR) ->
-//         console.log("Dynamic Measure select OK!")
 
 $(function(){
-    $("#biz_dimension_1").change(function() {
+    $(".dim_selection").on('change',(function () {
 
-        var data = $("#biz_dimension_1 option:selected").val();
+        var myID = this.id;
+        var id_to_change = '#' + 'biz_measures_'+ myID.slice(-1);
+        var from_id = '#'+myID + ' option:selected'
+
+        var data = $(from_id).val();
+        console.log(id_to_change);
+        $('.active').removeClass('active');
+        $(id_to_change).addClass('active');
 
         $.ajax({
             url: "update_measures",
             type: "GET",
             datatype: 'script',
             data: {
-                d_value: $("#biz_dimension_1 option:selected").val()
+                d_value: $(from_id).val()
             },
             success: function (data, status, xhr) {
-                console.log(data);
+                // console.log(data);
+                change_select(data, id_to_change);
             },
             error: function (xhr, status, error) {
                 console.log(xhr)
             }
         });
-            // var key = $dropdown.val();
-            // var vals = [];
-            //
-            //
-            //
-            // var $secondChoice = $("#second-choice");
-            // $secondChoice.empty();
-            // $.each(vals, function(index, value) {
-            //     $secondChoice.append("<option>" + value + "</option>");
-            // });
 
-
-    });
+    }));
 })
 
+function change_select(data, id_to_change) {
+    var json = jQuery.parseJSON(data);
+    var options = [];
+    json.each(function (key, index) {
+        options.push({text: index, value:key});
+    });
+    $(id_to_change).replaceOptions(options);
+}
 
-
-// #// $(function(){
-// #//     var data = {
-// #//         d_value: jQuery('#biz_dimension_1 :selected').val()
-// #//     }
-// #//     jQuery.ajax({
-// #//         url: 'update_measures',
-// #//         type: 'GET',
-// #//         dataType: 'script',
-// #//         data: data
-// #//     });
-// #// }
-// #
-// #
-// #// $(function(){
-// #//   $("#biz_dimension_1").change(function(){
-// #//     $.ajax({
-// #//   url: "/update_measures",
-// #//   type: "GET",
-// #//   data: {
-// #//     d_value: $(this).val();
-// #//   }
-// #// })
-// #// });
-// #// });
