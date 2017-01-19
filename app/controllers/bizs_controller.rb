@@ -1,6 +1,8 @@
 class BizsController < ApplicationController
   before_action :set_biz, only: [:show, :edit, :update, :destroy]
-  before_action :load_models, only: [:index, :new, :update_measures, :show, :edit]
+  before_action :load_models, only: [:index, :new, :update_measures, :show, :edit, :create]
+
+  before_filter :collect_dimensions_measures, only: [:create, :update]
   # GET /bizs.js
   # GET /bizs.js.json
   def index
@@ -15,13 +17,14 @@ class BizsController < ApplicationController
   # GET /bizs.js/1
   # GET /bizs.js/1.json
   def show
+    @biz.tap {|bz| bz.dimensions.to_a }
 
   end
 
   # GET /bizs.js/new
   def new
     @biz = Biz.new
-
+    # raise @biz.inspect
     # raise @my_biz.inspect
   end
 
@@ -32,15 +35,9 @@ class BizsController < ApplicationController
   # POST /bizs.js
   # POST /bizs.js.json
   def create
-    # raise biz_params.inspect
-    @biz = Biz.new(biz_params.tap do |bip|
-      bip["measures_1"].to_s
-      bip["measures_2"].to_s
-      bip["measures_3"].to_s
-      bip["measures_4"].to_s
-      bip["measures_5"].to_s
-    end
-    )
+
+    @biz = Biz.new(biz_params)
+
     respond_to do |format|
       if @biz.save
         format.html { redirect_to @biz, notice: 'Biz was successfully created.' }
@@ -94,20 +91,20 @@ class BizsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def biz_params
-      # raise params.require(:biz).inspect
-      params.require(:biz).permit(:fact, :dimension, :dimension_1, :dimension_2, :dimension_3, :dimension_4, :dimension_5.to_s, {:measures_1 => []}, {:measures_2 => []}, {:measures_3 => []}, {:measures_4 => []}, { :measures_5=> []} )
+      # my_dimensions = []
+      # (0..@my_biz.size-1).each {|myb| my_dimensions.push("measures_[#{myb}]") }
+
+      permitted_params = params.require(:biz).permit!
     end
 
     def load_models
       Rails.application.eager_load!
       @my_biz = ActiveRecord::Base.descendants #.map {|klass| [klass.name, klass.column_names, klass.reflections.keys]} #
+      @my_facts = @my_biz.map{|klass| [klass.name] }
       @dimensions = @my_biz.map.with_index {|klass, i| [ if i != 0; klass.name.constantize; else; end  ] }
       @default_measures = []
-      # @measures = @my_biz.map {|klass| { klass.name.constantize => klass.column_names } }
       @msrs_sym = @my_biz.map {|klass| [ klass.name.downcase.to_sym, klass.column_names ] }
-      # @dimensions = @dimensions_arr.map{|i| i.id}
       @my_biz_subsections = @my_biz.each_with_index.map{ |klass, i| {name: klass.column_names, id: i} }
-
 
     end
 
@@ -120,5 +117,22 @@ class BizsController < ApplicationController
        return return_value.flatten!
     end
 
+    def collect_dimensions_measures
 
+      params.tap do |bp|
+        bp["biz"][:measures] = []
+        bp["biz"][:dimensions]= []
+        # bp[:measures] = bp[:measures_].to_a
+        (0..@my_biz.size-1).each do |col|
+          if bp["biz"]["dimensions_#{col}"].present?
+            bp["biz"][:dimensions].push(bp["biz"]["dimensions_#{col}"])
+            bp["biz"].delete("dimensions_#{col}")
+            bp["biz"][:measures].push bp["biz"]["measures_"]["#{col}"].to_s
+          else
+            bp["biz"].delete("dimensions_#{col}")
+          end
+        end
+        bp["biz"].delete("measures_")
+      end
+    end
 end

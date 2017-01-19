@@ -8,7 +8,7 @@ $(function(){
     $(".dim_selection").on('change',(function () {
 
         var myID = this.id;
-        var id_to_change = '#' + 'biz_measures_'+ myID.slice(-1);
+        var id_to_change = '#' + 'biz_measures'+ myID.slice(-1);
         var from_id = '#'+myID + ' option:selected'
 
         var data = $(from_id).val();

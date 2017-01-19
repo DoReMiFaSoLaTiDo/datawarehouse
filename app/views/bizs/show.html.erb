@@ -5,10 +5,21 @@
   <%= @biz.fact %>
 </p>
 
-<p>
-  <strong>Dimension:</strong>
-  <%= @biz.dimension %>
-</p>
+<table>
+  <thead>
+    <th>Dimensions</th>
+    <th>Measures</th>
+  </thead>
+  <tbody>
+  <% (0..@my_biz.size-1).each do |myb| -%>
+  <tr>
+    <td><%= @biz.dimensions[myb] %></td>
+    <td></td>
+  </tr>
+  <% end %>
+  </tbody>
+
+</table>
 
 <%= link_to 'Edit', edit_biz_path(@biz) %> |
 <%= link_to 'Back', bizs_path %>

@@ -11,16 +11,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170113003406) do
+ActiveRecord::Schema.define(version: 20170118195310) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "bizs.js", force: :cascade do |t|
+  create_table "bizs", force: :cascade do |t|
     t.string   "fact"
-    t.string   "dimension",                array: true
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
     t.string   "dimension_1"
     t.string   "measures_1"
     t.string   "dimension_2"
@@ -31,6 +30,8 @@ ActiveRecord::Schema.define(version: 20170113003406) do
     t.string   "measures_4"
     t.string   "dimension_5"
     t.string   "measures_5"
+    t.string   "measures",    default: [],              array: true
+    t.string   "dimensions",  default: [],              array: true
   end
 
   create_table "customers", force: :cascade do |t|
