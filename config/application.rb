@@ -1,5 +1,6 @@
 require File.expand_path('../boot', __FILE__)
 
+# require 'sequel_connector'
 require 'rails/all'
 
 # Require the gems listed in Gemfile, including any gems
@@ -22,6 +23,9 @@ module Walmart
 
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
-    config.autoload_paths += %W(#{config.root}/lib)
+    config.autoload_paths += %W(#{config.root}/lib) #{config.root}/sequel_connector
+    # SequelConnector.new(Rails.env).connect_database
   end
 end
+
+# SequelConnector.new(Rails.env).connect_database
