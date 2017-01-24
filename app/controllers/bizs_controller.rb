@@ -40,6 +40,7 @@ class BizsController < ApplicationController
 
     respond_to do |format|
       if @biz.save
+        DwhEngine.new(@biz).create_relation
         format.html { redirect_to @biz, notice: 'Biz was successfully created.' }
         format.json { render :show, status: :created, location: @biz }
         format.js

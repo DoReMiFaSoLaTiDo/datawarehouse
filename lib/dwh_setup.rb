@@ -13,15 +13,16 @@ class DwhSetup < Thor
   # DB = Sequel.postgres
 
   desc "create dimensions", "create Dimension Tables"
-  def create_dimensions(*model_name)
+  def create_dimensions(model_name)
     model_name.each do |mn|
-      DB.create_table mn.downcase.pluralize.to_sym do
+      # next if DB.table_exists?(mn.downcase.pluralize.to_sym)
+      DB.create_table? mn.downcase.pluralize.to_sym do
         all_attribs = mn.classify.constantize.columns.map{|x| [x.name, x.type.to_s, x.human_name] }
         # raise all_attribs.inspect
         all_attribs.each do |attr|
           if attr[0].eql? 'id'
             primary_key attr[0]
-          #   dimensions are better denormalized, so foreign_keys are best reduced
+            #   dimensions are better denormalized, so foreign_keys are best reduced
           elsif attr[0].ends_with? "_id"
             foreign_key attr[0], attr[2].downcase.to_sym
           else
@@ -42,8 +43,9 @@ class DwhSetup < Thor
 
   desc "create fact", "create Fact Table"
   def create_fact(model_name)
-    all_attribs = model_name.classify.constantize.columns.map{|x| [x.name, x.type.to_s, x.human_name] }
-    DB.create_table model_name.downcase.to_sym do
+
+    DB.create_table? model_name.downcase.to_sym do
+      all_attribs = model_name.classify.constantize.columns.map{|x| [x.name, x.type.to_s, x.human_name] }
       all_attribs.each do |attr|
         if attr[0].eql? 'id'
           primary_key attr[0]

@@ -1,4 +1,9 @@
 Rails.application.routes.draw do
+  require 'sidekiq/web'
+  # Ensure you have a valid session
+  Sidekiq::Web.set :session_secret, Rails.application.secrets[:secret_key_base]
+  mount Sidekiq::Web => '/sidekiq'
+
   get 'bizs/update_measures', as: 'update_measures'
   # get 'bizs/:id/update_measures', as: 'update_measures'
   resources :bizs
