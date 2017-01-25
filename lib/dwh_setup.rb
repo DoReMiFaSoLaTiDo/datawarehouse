@@ -12,7 +12,7 @@ class DwhSetup < Thor
   # @conn ||= PG.connect( dbname: "dwh_#{Rails.env}")
   # DB = Sequel.postgres
 
-  desc "create dimensions", "create Dimension Tables"
+  desc "create dimensions", "create Dimension Tables. Accepts array of model names"
   def create_dimensions(model_name)
     model_name.each do |mn|
       # next if DB.table_exists?(mn.downcase.pluralize.to_sym)
@@ -41,7 +41,7 @@ class DwhSetup < Thor
     end
   end
 
-  desc "create fact", "create Fact Table"
+  desc "create fact", "create Fact Table. Accepts string table_name"
   def create_fact(model_name)
 
     DB.create_table? model_name.downcase.to_sym do
@@ -86,5 +86,48 @@ class DwhSetup < Thor
   desc "disconnect", "Disconnect backend connection"
   def db_disconnect
     DB.close
+  end
+
+  desc "extract_and_load", "copy bulk data from one data table to another. Accepts string"
+  def extract_load(model_name)
+    coll_str = []
+    coll_str.push model_name
+    # check if table exists in destination
+    if create_dimensions(coll_str)
+      my_model = model_name.classify.constantize
+      all_attribs =  my_model.columns.map{|x| x.name.to_sym }
+      data =  convert(my_model.all)
+      DB[model_name.pluralize.downcase.to_sym].import(all_attribs, data )
+    end
+  end
+
+  desc "insert_update table", "inserts into or updates table with record"
+  def insert_update(model_name,record_id)
+    my_model = model_name.classify.constantize
+    all_attribs =  my_model.columns.map{|x| x.name.to_sym }
+    data =  my_model.find(record_id)
+    my_keys = data.attributes.keys
+    my_values = data.attributes.values
+    DB[model_name.pluralize.downcase.to_sym].insert_conflict(:target=>:id, :update=>my_keys.zip(my_values).to_h).insert(data.attributes)
+  end
+
+  desc "insert into table", "insert new record"
+  def insert(model_name,record_id)
+    my_model = model_name.classify.constantize
+    all_attribs =  my_model.columns.map{|x| x.name.to_sym }
+    data =  my_model.find(record_id)
+    DB[model_name.pluralize.downcase.to_sym].insert(data.attributes)
+  end
+
+  desc "delete record", "delete record from table"
+  def delete(model_name,record_id)
+    DB[model_name.pluralize.downcase.to_sym].filter(:id => record_id).delete
+  end
+
+  desc "convert ar_object", "private method to extract values of ActiveRecord  Object"
+  def convert(ar_object)
+    data_collection = []
+    ar_object.each {|ar| data_collection.push(ar.attributes.values)}
+    data_collection
   end
 end

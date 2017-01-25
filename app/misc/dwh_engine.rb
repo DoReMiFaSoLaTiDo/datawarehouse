@@ -24,6 +24,36 @@ class DwhEngine
     end
   end
 
+  def delete_record
+    my_table = @biz.class.table_name
+    subject = {}
+    subject["table"] = my_table
+    subject["id"] = @biz.id
+    subject["job"] = 'delete'
+    DwhWorker.perform_async(subject)
+  end
+
+  def new_record
+    my_table = @biz.class.table_name
+    subject = {}
+    subject["table"] = my_table
+    subject["id"] = @biz.id
+    subject["job"] = 'insert'
+    DwhWorker.perform_async(subject)
+  end
+
+  def update_record
+    my_table = @biz.class.table_name
+    subject = {}
+    subject["table"] = my_table
+    subject["id"] = @biz.id
+    subject["job"] = 'update'
+    DwhWorker.perform_async(subject)
+    # data = my_table.classify.constantize.find(@biz.id)
+  end
+
+
+
   # def update_relation
   #   my_biz = Biz.find(@biz.id)
   #   if my_biz
@@ -34,8 +64,8 @@ class DwhEngine
   #   end
   # end
 
-  def update_record
-
-  end
+  # def update_record
+  #
+  # end
 end
 

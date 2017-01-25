@@ -9,22 +9,31 @@ class DwhWorker
     requested_action = options["job"]
     # raise requested_action.inspect
     case requested_action
-      when "super-hard"
-        puts "Charging a credit card..."
-        raise "Woops! stuff got bad"
-        puts "Grrr, Really took quite a bit of effort"
       when "create"
         dw ||= DwhSetup.new
         dw.create_dimensions(options["dimensions"])
         dw.create_fact(options["fact"])
         puts "New Schema created for #{options['fact']}"
-      when "mail"
-        OrderMailer.received(args[0..-2])
-        puts "Mail has been sent"
+      when "etl"
+        dw ||= DwhSetup.new
+        dw.extract_load(options["table"])
+        puts "Data Table loaded for #{options['table']}"
+      when "update"
+        dw ||= DwhSetup.new
+        dw.insert_update(options["table"],options["id"])
+        puts "Data Table updated for #{options['table']}"
+      when "insert"
+        dw ||= DwhSetup.new
+        dw.insert_update(options["table"],options["id"])
+        puts "New Record inserted into #{options['table']}"
+      when "delete"
+        dw ||= DwhSetup.new
+        dw.delete(options["table"],options["id"])
+        puts "Record deleted from #{options['table']}"
       else
         # raise options.inspect
         sleep 1
-        puts "This is DwhWorker"
+        puts "This is default operation DwhWorker"
     end
   end
 end
