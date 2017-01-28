@@ -1,0 +1,9 @@
+
+
+$('.active').empty();
+$('.active').append( $('<option>Select Dimension</option>'));
+<% @dims.each do |dim| %>
+  $('.active').append($('<option value="<%= dim[0].to_s.capitalize %>"><%= dim[0].to_s.capitalize %></option>'));
+<% end %>
+
+

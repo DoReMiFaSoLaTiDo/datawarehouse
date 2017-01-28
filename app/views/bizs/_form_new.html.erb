@@ -1,0 +1,47 @@
+
+<%= form_for (@biz) do |f| %>
+    <% if @count.eql?0 %>
+    <% if @biz.errors.any? %>
+      <div id="error_explanation">
+        <h2><%= pluralize(@biz.errors.count, "error") %> prohibited this biz from being saved:</h2>
+
+        <ul>
+        <% @biz.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+        </ul>
+      </div>
+    <% end %>
+    <% end %>
+  <div class="field">
+
+    <%= f.label :fact %><br>
+    <%= select_tag "biz[fact]", options_for_select( @potential_facts.map(&:first).each {|fact| [fact[0], fact[0]]} , @biz.fact.to_s ), {prompt: "Select Fact", :class => 'biz_factt'}  %>
+  </div>
+  <div class="field">
+    <table>
+      <thead>
+        <th>Dimension</th>
+        <th>Measurements</th>
+        <th></th>
+      </thead>
+      <tbody>
+      <div id="dimensions_measures" >
+        <% (1..@biz["dimensions"].length).each do |myb| -%>
+           <%= render 'dimensions' %>
+
+        <% end %>
+        <%= render 'dimensions' %>
+
+
+      </div>
+      </tbody>
+    </table>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
+</div>
+
+

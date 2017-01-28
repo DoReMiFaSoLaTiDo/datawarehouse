@@ -1,7 +1,7 @@
 <h1>New Biz</h1>
 
 
-<%= render 'form' %>
+<%= render 'form_new' %>
 <% form_tag bizs_path do %>
     <% model_array = @my_biz.map{|klass| [klass.name, klass.column_names, klass.reflections.keys]} %>
     <div class="field">

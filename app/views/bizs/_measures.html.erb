@@ -1,0 +1,1 @@
+<%= select_tag "biz[measures_[#{@count}]]", options_for_select( @default_measures.each_with_index { |name, idx| [name, idx] } ) , { prompt: "Select Measures" , multiple: true, size: 6, :id => "biz_measures#{@count}" }  %>

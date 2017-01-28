@@ -25,15 +25,23 @@
       </thead>
       <tbody>
       <div id="dimensions_measures" >
-        <% (0..@potential_facts.map{|pf| pf[1].size}.max-1).each do |myb| -%>
+        <% (0..@count-1).each do |myb| -%>
             <div id='<%= "morediv#{myb}" -%>'>
               <tr>
                 <td><%= select_tag "biz[dimensions_#{myb}]", options_for_select( @dimensions.each { |name| [name, name] }, @biz["dimensions"][myb].to_s ), {prompt: "Select Dimensions", :class => "dim_selection", :id => "biz_dimension#{myb}"} %></td>
-                <td><%= select_tag "biz[measures_[#{myb}]]", options_for_select( @default_measures.each_with_index { |name, idx| [name, idx] }, @biz["measures"][myb].to_s ) , { prompt: "Select Measures" , multiple: true, size: 6, :id => "biz_measures#{myb}" }  %></td>
-                <td><%= button_tag "+Add", {:id => "more_#{myb}", :class=>"more"} -%></td>
+                <td><%= select_tag "biz[measures_[#{myb}]]", options_for_select( @biz["measures"][myb].each { |name| [name, name] }, selected_key: @biz["measures"][myb] ) , { prompt: "Selected Measures" , multiple: true, size: 6, :id => "biz_measures#{myb}" }  %></td>
+
               </tr>
             </div>
         <% end %>
+        <div id='<%= "morediv#{@count}" -%>'>
+          <tr>
+            <td><%= select_tag "biz[dimensions_#{@count}]", options_for_select( @dims.each { |name| [name, name] }, @biz["dimensions"][@count].to_s ), {prompt: "Select Dimensions", :class => "dim_selection", :id => "biz_dimension#{@count}"} %></td>
+            <td><%= select_tag "biz[measures_[#{@count}]]", options_for_select( @default_measures.each_with_index { |name, idx| [name, idx] }, @biz["measures"][@count] ) , { prompt: "Select Measures" , multiple: true, size: 6, :id => "biz_measures#{@count}" }  %></td>
+            <td><%= f.submit "+Add", name: "add_dimension" -%></td>
+
+          </tr>
+        </div>
       </div>
       </tbody>
     </table>
@@ -44,7 +52,5 @@
 <% end %>
 </div>
 
-<script language="javascript">
-  closeDivs();
-</script>
+
 

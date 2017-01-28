@@ -1,0 +1,5 @@
+<tr>
+  <td><%= select_tag "biz[dimensions_#{@count}]", options_for_select( @dimensions.each { |name| [name, name] } ), {prompt: "Select Dimensions", :class => 'dim_selection', :id => "biz_dimension#{@count}"} %></td>
+  <td><%= render 'measures' %></td>
+  <td><%= submit_tag "+Add", name: "add_dimension" -%></td>
+</tr>

@@ -5,6 +5,11 @@ Rails.application.routes.draw do
   mount Sidekiq::Web => '/sidekiq'
 
   get 'bizs/update_measures', as: 'update_measures'
+  get 'bizs/get_dimensions', as: 'get_dimensions'
+  get 'bizs/update_dimensions', as: 'update_dimensions'
+  get 'bizs/new_factors', as: 'new_factors'
+  get 'bizs/preprocess', as: 'preprocess'
+
   # get 'bizs/:id/update_measures', as: 'update_measures'
   resources :bizs
   resources :sales

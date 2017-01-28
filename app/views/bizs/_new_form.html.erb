@@ -23,18 +23,8 @@
         <th>Measurements</th>
         <th></th>
       </thead>
-      <tbody>
-      <div id="dimensions_measures" >
-        <% (0..@potential_facts.map{|pf| pf[1].size}.max-1).each do |myb| -%>
-            <div id='<%= "morediv#{myb}" -%>'>
-              <tr>
-                <td><%= select_tag "biz[dimensions_#{myb}]", options_for_select( @dimensions.each { |name| [name, name] }, @biz["dimensions"][myb].to_s ), {prompt: "Select Dimensions", :class => "dim_selection", :id => "biz_dimension#{myb}"} %></td>
-                <td><%= select_tag "biz[measures_[#{myb}]]", options_for_select( @default_measures.each_with_index { |name, idx| [name, idx] }, @biz["measures"][myb].to_s ) , { prompt: "Select Measures" , multiple: true, size: 6, :id => "biz_measures#{myb}" }  %></td>
-                <td><%= button_tag "+Add", {:id => "more_#{myb}", :class=>"more"} -%></td>
-              </tr>
-            </div>
-        <% end %>
-      </div>
+      <tbody id="dimensions_measures">
+          <%= render 'dimensions' %>
       </tbody>
     </table>
 
@@ -47,4 +37,3 @@
 <script language="javascript">
   closeDivs();
 </script>
-
