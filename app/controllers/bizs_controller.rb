@@ -24,7 +24,7 @@ class BizsController < ApplicationController
 
   # GET /bizs.js/new
   def new
-    @biz ||= Biz.new
+    @biz = Biz.new
     # raise @biz.inspect
     # @count = @biz[:dimensions].size
     # @biz.dimensions.build
@@ -37,7 +37,6 @@ class BizsController < ApplicationController
     #raise 'edit'
     # raise @msrs_str.inspect
     @count = @biz.dimensions.size
-    @new_count = @count + 1
     @dimensions = @potential_facts.to_h[@biz.fact].map{|dim| [dim.to_s.capitalize]}
     # raise @dimensions.inspect
     dimension_arr = []
@@ -59,9 +58,6 @@ class BizsController < ApplicationController
   # POST /bizs.js
   # POST /bizs.js.json
   def create
-
-
-    # raise params.inspect
 
     @biz = Biz.new(biz_params)
     respond_to do |format|
@@ -103,12 +99,15 @@ class BizsController < ApplicationController
 
   def update_dimensions
     @dimens = new_dimensions
-    # raise @dimens.inspect
     @dimensions = @dimens.map{|dim, idx| [dim.to_s.capitalize,idx]}
     respond_to do |format|
       # format.html
       format.js
     end
+  end
+
+  def synchronize
+    DwhJobs.find_and_update_records(params[:job])
   end
 
   def new_factors
@@ -189,6 +188,7 @@ class BizsController < ApplicationController
     end
 
     def my_dimensions
+
       @potential_facts.to_h[params[:f_value]]
 
     end

@@ -29,11 +29,12 @@
             <div id='<%= "morediv#{myb}" -%>'>
               <tr>
                 <td><%= select_tag "biz[dimensions_#{myb}]", options_for_select( @dimensions.each { |name| [name, name] }, @biz["dimensions"][myb].to_s ), {prompt: "Select Dimensions", :class => "dim_selection", :id => "biz_dimension#{myb}"} %></td>
-                <td><%= select_tag "biz[measures_[#{myb}]]", options_for_select( @biz["measures"][myb].each { |name| [name, name] }, selected_key: @biz["measures"][myb] ) , { prompt: "Selected Measures" , multiple: true, size: 6, :id => "biz_measures#{myb}" }  %></td>
+                <td><%= select_tag "biz[measures_[#{myb}]]", options_for_select( @biz["measures"][myb].each { |name| [name, name] }, @biz["measures"][myb] ) , { prompt: "Selected Measures" , multiple: true, size: 6, :id => "biz_measures#{myb}" }  %></td>
 
               </tr>
             </div>
         <% end %>
+        <% if @dims.present? %>
         <div id='<%= "morediv#{@count}" -%>'>
           <tr>
             <td><%= select_tag "biz[dimensions_#{@count}]", options_for_select( @dims.each { |name| [name, name] }, @biz["dimensions"][@count].to_s ), {prompt: "Select Dimensions", :class => "dim_selection", :id => "biz_dimension#{@count}"} %></td>
@@ -42,6 +43,7 @@
 
           </tr>
         </div>
+        <% end %>
       </div>
       </tbody>
     </table>

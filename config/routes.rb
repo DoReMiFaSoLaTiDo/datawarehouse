@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   require 'sidekiq/web'
+  # require 'sidecloq/web'
   # Ensure you have a valid session
   Sidekiq::Web.set :session_secret, Rails.application.secrets[:secret_key_base]
   mount Sidekiq::Web => '/sidekiq'
@@ -10,12 +11,16 @@ Rails.application.routes.draw do
   get 'bizs/new_factors', as: 'new_factors'
   get 'bizs/preprocess', as: 'preprocess'
 
+  post 'bizs/synchronize' => 'bizs#synchronize'
+
   # get 'bizs/:id/update_measures', as: 'update_measures'
   resources :bizs
   resources :sales
   resources :customers
   resources :products
   resources :salespeople
+
+  root 'bizs#new'
 
 
   # The priority is based upon order of creation: first created -> highest priority.

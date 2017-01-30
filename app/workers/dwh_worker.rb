@@ -1,7 +1,6 @@
 class DwhWorker
   include Sidekiq::Worker
-
-
+  sidekiq_options queue: 'dwh'
 
   def perform(options={})
     # Do something

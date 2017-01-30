@@ -2,24 +2,6 @@
 
 
 <%= render 'form_new' %>
-<% form_tag bizs_path do %>
-    <% model_array = @my_biz.map{|klass| [klass.name, klass.column_names, klass.reflections.keys]} %>
-    <div class="field">
-      <%= label_tag :fact %><br>
-      <%= select_tag :fact, options_for_select( [ [model_array[1][0], 1], [model_array[2][0], 2], [model_array[3][0], 3], [model_array[4][0], 4], [ model_array[5][0], 5] ], @biz.fact.to_s ), prompt: "Please select Fact table"  %>
-    </div>
-    <div>
-      <table>
-        <thead>
-          <th>Dimensions</th>
-          <th>Measures</th>
-        </thead>
-        <tbody>
-          <%= select_tag "dimension_1", options_for_select( @dimensions.each_with_index { |name,idx | [name, idx] }, @biz.dimension_1.to_s ) %>
-        </tbody>
-      </table>
-    </div>
-    <div><%= submit_tag 'Submit' %></div>
-<% end %>
+
 
 <%= link_to 'Back', bizs_path %>

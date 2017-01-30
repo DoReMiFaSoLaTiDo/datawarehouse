@@ -51,7 +51,7 @@ $(function(){
         $(id_to_change).addClass('active');
 
         $.ajax({
-            url: "get_dimensions",
+            url: "/bizs/get_dimensions",
             type: "GET",
             datatype: 'script',
             data: {
@@ -68,7 +68,7 @@ $(function(){
 
     }));
 
-    $(".more").on('click',(function (e) {
+    $(".add_more").on('click',(function (e) {
         e.preventDefault();
         var myID = this.id;
         var id_to_open = '#morediv' + (parseInt(myID.substring(5))+1); //'#more'+ parseInt(myID.slice(-1))+1;
@@ -90,7 +90,7 @@ $(function(){
         $(id_to_change).addClass('active');
 
         $.ajax({
-            url: "update_dimensions",
+            url: "/bizs/update_dimensions",
             type: "GET",
             datatype: 'script',
             data: {

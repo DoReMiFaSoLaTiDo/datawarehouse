@@ -4,6 +4,11 @@ development:
 production:
   :concurrency: 20
 
+:schedule:
+  dwh_engine:
+    every: 5m
+    class: DwhEngine
+
 :queues:
-  - default
-  - dwh
+  - ["dwh", 1]
+  - ["default", 1]
