@@ -7,13 +7,12 @@ require 'bigdecimal'
 
 class DwhSetup < Thor
 
-  include ClassFactory
   DB ||= SequelConnector.new(Rails.env).connect_database
   # @conn ||= PG.connect( dbname: "dwh_#{Rails.env}")
   # DB = Sequel.postgres
 
   desc "create dimensions", "create Dimension Tables. Accepts array of model names"
-  def create_dimensions(model_name)
+  def create_dimensions(*model_name)
     model_name.each do |mn|
       # next if DB.table_exists?(mn.downcase.pluralize.to_sym)
       DB.create_table? mn.downcase.pluralize.to_sym do
@@ -38,6 +37,7 @@ class DwhSetup < Thor
           end
         end
       end
+
     end
   end
 
@@ -89,16 +89,33 @@ class DwhSetup < Thor
   end
 
   desc "extract_and_load", "copy bulk data from one data table to another. Accepts string"
-  def extract_load(model_name)
-    coll_str = []
-    coll_str.push model_name
+  def extract_load(model_name,last_scan)
+    # raise model_name.inspect
+    # coll_str = []
+    # coll_str.push model_name
     # check if table exists in destination
-    if create_dimensions(coll_str)
-      my_model = model_name.classify.constantize
-      all_attribs =  my_model.columns.map{|x| x.name.to_sym }
-      data =  convert(my_model.all)
-      DB[model_name.pluralize.downcase.to_sym].import(all_attribs, data )
+    # if create_dimensions(coll_str)
+    my_model = model_name.classify.constantize
+    all_attribs =  my_model.columns.map{|x| x.name.to_sym }
+    data =  convert(my_model.where(updated_at: (1.day.ago..Time.current ) ))
+    # raise data.inspect
+    DB[model_name.pluralize.downcase.to_sym].import(all_attribs, data )
+    # end
+  end
+
+  desc "bulk insert_update table", "inserts into or updates table with batch record"
+  def bulk_insert_update(model_name,last_scan)
+    my_model = model_name.classify.constantize
+    all_attribs =  my_model.columns.map{|x| x.name.to_sym }
+    data =  convert(my_model.where(updated_at: (1.day.ago..Time.current ) ))
+    query_data = my_model.where(updated_at: (1.day.ago..Time.current ) )
+    query_coll = query_data.each {|qr| qr.attributes.keys.zip(qr.attributes.values).to_h}
+    # my_keys = data.attributes.keys
+    # my_values = data.attributes.values
+    query_coll.each do |qc|
+      DB[model_name.pluralize.downcase.to_sym].insert_conflict(:target=>:id, :update=>qc.attributes).insert(qc.attributes)
     end
+    # DB[model_name.pluralize.downcase.to_sym].insert_conflict(:target=>:id, :update=>my_keys.zip(my_values).to_h).insert(data.attributes)
   end
 
   desc "insert_update table", "inserts into or updates table with record"

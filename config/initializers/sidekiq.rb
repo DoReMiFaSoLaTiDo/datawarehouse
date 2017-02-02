@@ -26,6 +26,11 @@ if Rails.env.production?
 else
   Sidekiq.configure_client do |config|
     config.redis = { db: 1 }
+    Rails.application.config.after_initialize do
+      subject = {}
+      subject["job"] = 'start'
+      DwhWorker.perform_async(subject)
+    end
   end
 
   Sidekiq.configure_server do |config|

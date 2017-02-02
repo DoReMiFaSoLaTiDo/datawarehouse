@@ -38,7 +38,7 @@ module DwhJobs
         the_table = Biz.pluck(:id, :fact, :dimensions)
         unique_fact = the_table.map(&:fact)
         unique_dimensions = the_table.map(&:dimensions).flatten.to_set
-        all_tables = unique_fact || unique_dimensions
+        all_tables = unique_fact | unique_dimensions
         all_tables.each do |model_klass|
           record = model_klass.where(updated_at: (Time.current - 15.minutes)..Time.current )
           if record
@@ -52,12 +52,12 @@ module DwhJobs
   end
 
   def self.update_records
-    the_table = Biz.pluck(:id, :fact, :dimensions)
-    unique_fact = the_table.map(&:fact)
-    unique_dimensions = the_table.map(&:dimensions).flatten.to_set
-    all_tables = unique_fact || unique_dimensions
+
+    unique_fact = Biz.pluck(:fact).uniq
+    unique_dimensions = Biz.pluck(:dimensions).flatten.uniq
+    all_tables = unique_fact | unique_dimensions
     all_tables.each do |model_klass|
-      record = model_klass.where(updated_at: (Time.current - 15.minutes)..Time.current )
+      record = model_klass.classify.constantize.where(updated_at: (Time.current - 15.minutes)..Time.current )
       if record
         record.each do |rec|
           DwhEngine.new(rec).update_record
