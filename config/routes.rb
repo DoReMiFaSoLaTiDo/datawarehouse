@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  resources :transactions
+  resources :accounts
   require 'sidekiq/web'
   # require 'sidecloq/web'
   # Ensure you have a valid session

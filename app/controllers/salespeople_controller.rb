@@ -28,7 +28,7 @@ class SalespeopleController < ApplicationController
 
     respond_to do |format|
       if @salesperson.save
-        DwhEngine.new(@salesperson).new_record
+        # DwhEngine.new(@salesperson).new_record
         format.html { redirect_to @salesperson, notice: 'Salesperson was successfully created.' }
         format.json { render :show, status: :created, location: @salesperson }
       else
@@ -43,7 +43,7 @@ class SalespeopleController < ApplicationController
   def update
     respond_to do |format|
       if @salesperson.update(salesperson_params)
-        DwhEngine.new(@salesperson).update_record
+        # DwhEngine.new(@salesperson).update_record
         format.html { redirect_to @salesperson, notice: 'Salesperson was successfully updated.' }
         format.json { render :show, status: :ok, location: @salesperson }
       else
@@ -57,7 +57,7 @@ class SalespeopleController < ApplicationController
   # DELETE /salespeople/1.json
   def destroy
     @salesperson.destroy
-    DwhEngine.new(@salesperson).delete_record
+    # DwhEngine.new(@salesperson).delete_record
     respond_to do |format|
       format.html { redirect_to salespeople_url, notice: 'Salesperson was successfully destroyed.' }
       format.json { head :no_content }

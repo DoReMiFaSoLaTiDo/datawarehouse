@@ -1,0 +1,24 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Tran type:</strong>
+  <%= @transaction_log.tran_type %>
+</p>
+
+<p>
+  <strong>Amount:</strong>
+  <%= @transaction_log.amount %>
+</p>
+
+<p>
+  <strong>Account:</strong>
+  <%= @transaction_log.account.account_name %>
+</p>
+
+<p>
+  <strong>Salesperson:</strong>
+  <%= @transaction_log.salesperson.name %>
+</p>
+
+<%= link_to 'Edit', edit_transaction_path(@transaction_log) %> |
+<%= link_to 'Back', transactions_path %>

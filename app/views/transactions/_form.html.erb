@@ -1,0 +1,33 @@
+<%= form_for(@transaction_log) do |f| %>
+  <% if @transaction_log.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@transaction_log.errors.count, "error") %> prohibited this transaction_log from being saved:</h2>
+
+      <ul>
+      <% @transaction_log.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :tran_type %><br>
+    <%= f.select :tran_type, Transaction.tran_types.keys, prompt: "Select Tran Type" %>
+  </div>
+  <div class="field">
+    <%= f.label :amount %><br>
+    <%= f.text_field :amount %>
+  </div>
+  <div class="field">
+    <%= f.label :account_id %><br>
+    <%= f.collection_select :account_id, Account.all, :id, :account_name, prompt: "Select Account" %>
+  </div>
+  <div class="field">
+    <%= f.label :salesperson_id %><br>
+    <%= f.collection_select :salesperson_id, Salesperson.all, :id, :name, prompt: "Select Teller"  %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

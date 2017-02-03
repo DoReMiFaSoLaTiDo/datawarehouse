@@ -67,6 +67,14 @@ class BizsController < ApplicationController
 
           format.html { redirect_to edit_biz_path(@biz)}
         else
+          relation = {}
+          #   build relation
+          relation["fact"] = @biz[:fact]
+          relation["dimensions"] = @biz[:dimensions]
+          relation["job"] = 'create'
+          # raise relation.inspect
+          DwhWorker.perform_async(relation)
+
           format.html { redirect_to @biz, notice: 'Biz was successfully created.' }
           format.json { render :show, status: :created, location: @biz }
           format.js
@@ -129,6 +137,13 @@ class BizsController < ApplicationController
           format.html { redirect_to edit_biz_path(@biz)}
 
         else
+          relation = {}
+          #   build relation
+          relation["fact"] = @biz[:fact]
+          relation["dimensions"] = @biz[:dimensions]
+          relation["job"] = 'create'
+          # raise relation.inspect
+          DwhWorker.perform_async(relation)
         format.html { redirect_to @biz, notice: 'Biz was successfully updated.' }
         format.json { render :show, status: :ok, location: @biz }
         end

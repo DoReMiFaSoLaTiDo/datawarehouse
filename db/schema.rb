@@ -11,10 +11,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170131203414) do
+ActiveRecord::Schema.define(version: 20170202215121) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "accounts", force: :cascade do |t|
+    t.string   "account_name"
+    t.decimal  "account_balance", precision: 8, scale: 2
+    t.integer  "customer_id"
+    t.datetime "created_at",                              null: false
+    t.datetime "updated_at",                              null: false
+  end
+
+  add_index "accounts", ["customer_id"], name: "index_accounts_on_customer_id", using: :btree
 
   create_table "bizs", force: :cascade do |t|
     t.string   "fact"
@@ -74,7 +84,22 @@ ActiveRecord::Schema.define(version: 20170131203414) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "transactions", force: :cascade do |t|
+    t.integer  "tran_type"
+    t.decimal  "amount",         precision: 8, scale: 2
+    t.integer  "account_id"
+    t.integer  "salesperson_id"
+    t.datetime "created_at",                             null: false
+    t.datetime "updated_at",                             null: false
+  end
+
+  add_index "transactions", ["account_id"], name: "index_transactions_on_account_id", using: :btree
+  add_index "transactions", ["salesperson_id"], name: "index_transactions_on_salesperson_id", using: :btree
+
+  add_foreign_key "accounts", "customers"
   add_foreign_key "sales", "customers"
   add_foreign_key "sales", "products"
   add_foreign_key "sales", "salespeople"
+  add_foreign_key "transactions", "accounts"
+  add_foreign_key "transactions", "salespeople"
 end

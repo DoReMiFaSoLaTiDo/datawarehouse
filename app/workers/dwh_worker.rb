@@ -83,6 +83,14 @@ class DwhWorker
           self.class.complete
         end
 
+      when "create"
+        # raise opts.inspect
+        @dw ||= DwhSetup.new
+        @dw.create_dimensions(opts["dimensions"])
+        @dw.create_fact(opts["fact"])
+        puts "New Schema created for #{opts['fact']}"
+
+
       when "start"
         if self.class.complete? && Time.current > self.class.get_last_scan + 2.minutes
           puts "Getting started"
@@ -91,10 +99,10 @@ class DwhWorker
           subject['job'] = 'start'
           self.class.perform_async(subject)
         else
-          puts "Seems last check was less than 2 minutes ago (#{self.class.get_last_scan}). Waiting 3 minutes"
+          puts "Seems last check was less than 2 minutes ago (#{self.class.get_last_scan}). Waiting 2 minutes"
           subject = {}
           subject['job'] = 'start'
-          self.class.perform_in(5.seconds, subject)
+          self.class.perform_in(2.minutes, subject)
         end
 
       else
@@ -102,12 +110,7 @@ class DwhWorker
 
     end
 
-    #   when "create"
-    #     dw ||= DwhSetup.new
-    #     dw.create_dimensions(options["dimensions"])
-    #     dw.create_fact(options["fact"])
-    #     puts "New Schema created for #{options['fact']}"
-    #
+
 
     #   when "etl"
     #     dw ||= DwhSetup.new

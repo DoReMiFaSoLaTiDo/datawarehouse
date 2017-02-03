@@ -12,7 +12,7 @@ class DwhSetup < Thor
   # DB = Sequel.postgres
 
   desc "create dimensions", "create Dimension Tables. Accepts array of model names"
-  def create_dimensions(*model_name)
+  def create_dimensions(model_name)
     model_name.each do |mn|
       # next if DB.table_exists?(mn.downcase.pluralize.to_sym)
       DB.create_table? mn.downcase.pluralize.to_sym do
@@ -23,7 +23,7 @@ class DwhSetup < Thor
             primary_key attr[0]
             #   dimensions are better denormalized, so foreign_keys are best reduced
           elsif attr[0].ends_with? "_id"
-            foreign_key attr[0], attr[2].downcase.to_sym
+            foreign_key attr[0], attr[2].downcase.pluralize.to_sym
           else
             if attr[1].eql? 'datetime'
               DateTime attr[0]
@@ -44,7 +44,7 @@ class DwhSetup < Thor
   desc "create fact", "create Fact Table. Accepts string table_name"
   def create_fact(model_name)
 
-    DB.create_table? model_name.downcase.to_sym do
+    DB.create_table? model_name.downcase.pluralize.to_sym do
       all_attribs = model_name.classify.constantize.columns.map{|x| [x.name, x.type.to_s, x.human_name] }
       all_attribs.each do |attr|
         if attr[0].eql? 'id'

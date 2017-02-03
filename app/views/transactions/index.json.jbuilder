@@ -1,0 +1,1 @@
+json.array! @transaction_logs, partial: 'transaction_logs/transaction_log', as: :transaction
