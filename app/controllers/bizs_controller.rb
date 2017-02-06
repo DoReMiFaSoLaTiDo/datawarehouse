@@ -25,35 +25,26 @@ class BizsController < ApplicationController
   # GET /bizs.js/new
   def new
     @biz = Biz.new
-    # raise @biz.inspect
-    # @count = @biz[:dimensions].size
-    # @biz.dimensions.build
-    # raise @biz.inspect
-    # raise @my_biz.inspect
+
   end
 
   # GET /bizs.js/1/edit
   def edit
-    #raise 'edit'
-    # raise @msrs_str.inspect
+
     @count = @biz.dimensions.size
     @dimensions = @potential_facts.to_h[@biz.fact].map{|dim| [dim.to_s.capitalize]}
-    # raise @dimensions.inspect
+
     dimension_arr = []
     dimension_arr.push(@biz.fact).push(@biz.dimensions)
     @dimens = new_dimensions_html(dimension_arr)
     (0..@count-1).each do |num|
-      @biz["measures"][num] = @biz["measures"][num].tr('^a-z,',"").split(',') if @biz["measures"][num]
+      @biz["measures"][num] = @biz["measures"][num].tr('^a-z,-',"").split(',') if @biz["measures"][num]
     end
-    # raise @biz["measures"][0].inspect
+
     @dims = @dimens.map{|dim| [dim.to_s.capitalize]}
-    # raise @dims.inspect
-    # @new_dimens =
-  end
-
-  def add_new
 
   end
+
 
   # POST /bizs.js
   # POST /bizs.js.json
@@ -90,7 +81,7 @@ class BizsController < ApplicationController
   def update_measures
     @measures = get_measures
     # raise @measures.inspect
-    @msrs = @measures.map.with_index {|msr, idx| [msr,idx]}
+    @msrs = @measures.map.with_index {|msr, idx| [msr,idx]} if @measures
     respond_to do |format|
       format.js
     end
@@ -172,9 +163,6 @@ class BizsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def biz_params
-      # my_dimensions = []
-      # (0..@my_biz.size-1).each {|myb| my_dimensions.push("measures_[#{myb}]") }
-
       permitted_params = params.require(:biz).permit!
     end
 
@@ -191,16 +179,40 @@ class BizsController < ApplicationController
       @my_biz_subsections = @my_biz.each_with_index.map{ |klass, i| {name: klass.column_names, id: i} }
       @count = 0
       @msrs_str = @my_biz.map {|klass| [ klass.name, klass.column_names ] }
+
+      @msrs_hash = Hash[@msrs_sym]
+      @updated_msrs = {}
+      @my_factors.each_with_index  do |dm, idx|
+        next if idx == 0
+        fd = dm.flatten.map(&:downcase).map(&:to_sym)
+
+        @updated_msrs[fd[0]] = []
+        fd.each do |f|
+          @updated_msrs[fd[0]].push(prepend_values(@msrs_hash[f], f.to_s)) if @msrs_hash[f]
+        end
+        @updated_msrs[fd[0]].flatten!
+        @updated_msrs[fd[0]].uniq!
+      end
+
+    end
+
+    def prepend_values(attribs,model_klass)
+      attribs.map{ |attrib| model_klass + "-" + attrib }
     end
 
     def get_measures
-      # raise params[:d_value].inspect
-      return_value = []
-      @msrs_sym.each do |msr|
-        return_value.push( msr[1]) if msr[0].eql?( params[:d_value].downcase.to_sym ) #if msr.key.eql?(params[:d_value].downcase.to_sym)
-      end
-       return return_value.flatten!
+
+      return_value = @updated_msrs[params[:d_value].downcase.to_sym]
     end
+
+  def get_measures_old
+    # raise params[:d_value].inspect
+    return_value = []
+    @msrs_sym.each do |msr|
+      return_value.push( msr[1]) if msr[0].eql?( params[:d_value].downcase.to_sym ) #if msr.key.eql?(params[:d_value].downcase.to_sym)
+    end
+    return return_value.flatten!
+  end
 
     def my_dimensions
 
@@ -229,24 +241,19 @@ class BizsController < ApplicationController
 
       params.tap do |bp|
         bp["biz"][:measures] = []
-        # if params["id"].present?
-        #   obj = Biz.find(params[:id].to_i)
-        #   bp["biz"][:measures].push(obj["measures"])
-        # end
         bp["biz"][:dimensions]= []
-        # bp[:measures] = bp[:measures_].to_a
+
         (0..@model_array.size-1).each do |col|
           if bp["biz"]["dimensions_#{col}"].present?
             bp["biz"][:dimensions].push(bp["biz"]["dimensions_#{col}"])
-            bp["biz"].delete("dimensions_#{col}") #unless params[:add_dimensions].present?
+            bp["biz"].delete("dimensions_#{col}")
             bp["biz"][:measures].push bp["biz"]["measures_"]["#{col}"].to_s if bp["biz"]["measures_"]["#{col}"].present?
           else
-            bp["biz"].delete("dimensions_#{col}") #unless params[:add_dimensions].present?
+            bp["biz"].delete("dimensions_#{col}")
           end
         end
-        bp["biz"].delete("measures_") #unless params[:add_dimensions].present?
-      end #unless params[:add_dimensions].present?
-      # raise params.inspect
+        bp["biz"].delete("measures_")
+      end
     end
 
 end

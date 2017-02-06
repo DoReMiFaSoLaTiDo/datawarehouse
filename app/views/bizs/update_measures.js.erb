@@ -1,7 +1,7 @@
 
 $('.active').empty();
 $('.active').append( $('<option>Select Measures</option>'));
-<% @msrs.each do |msr| %>
+<% @msrs.try(:each) do |msr| %>
   $('.active').append($('<option value="<%= msr[0] %>"><%= msr[0] %></option>'));
 <% end %>
 

@@ -11,13 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170202215121) do
+ActiveRecord::Schema.define(version: 20170206174627) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "accounts", force: :cascade do |t|
-    t.string   "account_name"
+    t.string   "name"
     t.decimal  "account_balance", precision: 8, scale: 2
     t.integer  "customer_id"
     t.datetime "created_at",                              null: false
