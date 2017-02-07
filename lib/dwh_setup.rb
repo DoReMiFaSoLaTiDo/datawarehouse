@@ -9,6 +9,7 @@ class DwhSetup < Thor
 
   DB ||= SequelConnector.new(Rails.env).connect_database
   # @conn ||= PG.connect( dbname: "dwh_#{Rails.env}")
+  @conn ||= PG.connect( dbname: "walmart_#{Rails.env}")
   # DB = Sequel.postgres
 
   desc "create dimensions", "create Dimension Tables. Accepts array of model names"
@@ -64,6 +65,34 @@ class DwhSetup < Thor
         end
       end
     end
+  end
+
+  desc "create table", "creates table relation. Accepts string table_name"
+  def create_vtable(v_name, model_name, attribs)
+    @conn.exec ( "CREATE TABLE #{v_name} AS
+        SELECT  #{attribs.size.times { p '?' } }
+        FROM #{model_name.size.times { p '?' } }
+        WHERE
+      "
+    )
+  rescue PG::Error => e
+    puts e.message
+
+  ensure
+    @conn.close if conn
+
+
+
+
+  end
+
+  desc "get fact attributes", "returns a list of table attributes"
+  def get_attributes(
+      SELECT column_name
+  FROM information_schema.columns
+  WHERE table_name = ? )
+
+    @conn.exec( )
   end
 
   desc "drop table", "drop a table"
