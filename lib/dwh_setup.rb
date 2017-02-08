@@ -69,6 +69,8 @@ class DwhSetup < Thor
 
       end
 
+      self.populate_blank(table_name)
+
     #   handle foreign values
       foreign_attribs = opts['attribs'][tab].select{ |att| att if att.split('-')[0] != tab.downcase }
       foreign_tabs = foreign_attribs.map{ |fa| fa.split('-')}
@@ -91,8 +93,46 @@ class DwhSetup < Thor
           @ar_conn.add_column( table_name.to_sym, fd[0].to_sym, fd[1].to_sym)
 
         end
+
+        self.populate_blank(table_name)
       end
 
+
+    end
+
+  end
+
+  desc "populator", "populates blank table with data"
+  def populate_blank(table_name)
+    model_name = table_name.split('-')
+    my_attribs = get_attributes(table_name).rows.flatten
+    # raise my_attribs.inspect
+
+    data = model_name[0].classify.constantize.pluck(my_attribs.join(','))
+    @ar_conn ||= ActiveRecord::Base.connection
+    @ar_conn.exec_query("INSERT INTO " + " \"#{table_name}\" " + " SELECT #{my_attribs.join(',')} FROM #{model_name[0]};")
+
+  end
+
+  desc "update_dependents", "updates dependent tables with data from master table"
+  def updator(table_names,last_time)
+    query_data = table_names[0].classify.constantize.where(updated_at: (last_time..Time.current ) )
+    table_names.each do |tab|
+      next if tab.eql?table_names[0]
+      my_attribs = get_attributes(tab).rows.flatten
+
+      # applicable_data = query_data.select(my_attribs.join(','))
+      applicable_data = query_data.select(my_attribs.join(','))
+      # my_model = model_name.classify.constantize
+      # all_attribs =  my_model.columns.map{|x| x.name.to_sym }
+      # data =  convert(my_model.where(updated_at: (1.day.ago..Time.current ) ))
+
+      query_coll = applicable_data.each {|qr| qr.attributes.keys.zip(qr.attributes.values).to_h}
+      # my_keys = data.attributes.keys
+      # my_values = data.attributes.values
+      query_coll.each do |qc|
+        @db[tab.to_sym].insert_conflict(:target=>:id, :update=>qc.attributes).insert(qc.attributes)
+      end
 
     end
 
@@ -123,31 +163,13 @@ class DwhSetup < Thor
     end
   end
 
-  # desc "create table", "creates table relation. Accepts string table_name"
-  # def create_vtable(v_name, model_name, attribs)
-  #   @conn.exec_params ( "CREATE TABLE $1 AS
-  #       SELECT  #{attribs.size.times { p '?' } }
-  #       FROM #{model_name.size.times { p '?' } }
-  #       WHERE
-  #     ", []
-  #   )
-  # rescue PG::Error => e
-  #   puts e.message
-  #
-  # ensure
-  #   @conn.close if @conn
-  #
-  #
-  # end
 
-  # desc "get fact attributes", "returns a list of table attributes"
-  # def get_attributes(model_name)
-  #   @conn.exec( SELECT column_name
-  # FROM information_schema.columns
-  # WHERE table_name = ?, ["#{model_name}"] )
-  #
-  #
-  # end
+  desc "get table attributes", "returns a list of table attributes"
+  def get_attributes(model_name)
+    @ar_conn ||= ActiveRecord::Base.connection
+    @ar_conn.exec_query("SELECT column_name FROM information_schema.columns WHERE table_name = " + " '#{model_name}'  " )
+
+  end
 
   desc "drop table", "drop a table"
   def drop_table(*model_name)

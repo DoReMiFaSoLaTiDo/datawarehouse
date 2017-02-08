@@ -2,7 +2,8 @@ class SequelConnector
   def initialize(env)
     @env = env
     load_database_config
-    @params = @database_config["dwhouse_#{@env}"]
+    # @params = @database_config["dwhouse_#{@env}"]
+    @params = @database_config[@env]
   end
   def connect_database
     Sequel.connect(

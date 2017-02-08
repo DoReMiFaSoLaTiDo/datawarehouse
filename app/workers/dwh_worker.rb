@@ -53,21 +53,48 @@ class DwhWorker
     end
 
     if etl_tables.any?
+      @ar_conn = ActiveRecord::Base.connection
+      the_tables = @ar_conn.tables
       self.set_busy
       self.set_tasks_todo(etl_tables.size)
       etl_tables.each do |tab|
         subject = {}
         subject["job"] = "bulk_update"
-        subject["table"] = tab
+        my_tables = the_tables.select{ |tt| tt if tt[/\d/] && tt.start_with?(tab)}
+        if my_tables.any?
+          my_tables.unshift(tab)
+        end
+        subject["table"] = my_tables
         perform_async(subject)
       end
     end
+
+    # if etl_tables.any?
+    #   self.set_busy
+    #   self.set_tasks_todo(etl_tables.size)
+    #   etl_tables.each do |tab|
+    #     subject = {}
+    #     subject["job"] = "bulk_update"
+    #     subject["table"] = tab
+    #     perform_async(subject)
+    #   end
+    # end
 
     Rails.logger.info("Fact and Dimension tables updated at #{Time.current}")
 
   end
 
 
+  def table_set
+
+    masters = the_tables.reject{|tt| tt if tt[/\d/]}
+    dependents = the_tables.select{|tt| tt if tt[/\d/]}
+    master_dependents = {}
+    masters.each do |master|
+      master_dependents[master] = [master]
+      master_dependents[master].push()
+    end
+  end
 
   def perform(opts={})
     # Do something
