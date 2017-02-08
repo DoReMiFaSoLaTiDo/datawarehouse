@@ -60,10 +60,13 @@ class BizsController < ApplicationController
         else
           relation = {}
           #   build relation
-          relation["fact"] = @biz[:fact]
           relation["dimensions"] = @biz[:dimensions]
+          relation["id"] = @biz[:id]
+          relation["attribs"] = {}
+          @biz[:dimensions].each_with_index do |bd, idx|
+            relation['attribs'][bd] = @biz["measures"][idx].tr('^a-z,-',"").split(',') if bd.eql?@biz["measures"][idx]
+          end
           relation["job"] = 'create'
-          # raise relation.inspect
           DwhWorker.perform_async(relation)
 
           format.html { redirect_to @biz, notice: 'Biz was successfully created.' }
@@ -130,8 +133,13 @@ class BizsController < ApplicationController
         else
           relation = {}
           #   build relation
-          relation["fact"] = @biz[:fact]
+          # relation["fact"] = @biz[:fact]
           relation["dimensions"] = @biz[:dimensions]
+          relation["id"] = @biz[:id]
+          relation["attribs"] = {}
+          @biz[:dimensions].each_with_index do |bd, idx|
+            relation['attribs'][bd] = @biz["measures"][idx].tr('^a-z,-',"").split(',') if bd.eql?@biz["measures"][idx]
+          end
           relation["job"] = 'create'
           # raise relation.inspect
           DwhWorker.perform_async(relation)

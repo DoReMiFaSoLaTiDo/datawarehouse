@@ -86,7 +86,13 @@ class DwhWorker
       when "create"
         # raise opts.inspect
         @dw ||= DwhSetup.new
-        @dw.create_dimensions(opts["dimensions"])
+        @dw.create_dimensions(opts)
+        puts "New Schemas created for #{opts['fact']}"
+
+      when "create_old"
+        # raise opts.inspect
+        @dw ||= DwhSetup.new
+        @dw.create_dimensions_old(opts["dimensions"])
         @dw.create_fact(opts["fact"])
         puts "New Schema created for #{opts['fact']}"
 
