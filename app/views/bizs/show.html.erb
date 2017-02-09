@@ -14,7 +14,7 @@
   <% (0..@biz.dimensions.size-1).each do |myb| -%>
   <tr>
     <td><%= @biz.dimensions[myb] %></td>
-    <td><%= @biz.measures[myb].tr('^a-z,-',"").split(",").map(&:capitalize) %></td>
+    <td><%= @biz.measures[myb].tr('^a-z,-_',"").split(",").map(&:capitalize) %></td>
   </tr>
   <% end %>
   </tbody>

@@ -18,7 +18,7 @@
       <tr>
         <td><%= transaction_log.tran_type %></td>
         <td><%= transaction_log.amount %></td>
-        <td><%= transaction_log.account.account_name %></td>
+        <td><%= transaction_log.account.name %></td>
         <td><%= transaction_log.salesperson.name %></td>
         <td><%= link_to 'Show', transaction_log %></td>
         <td><%= link_to 'Edit', edit_transaction_path(transaction_log) %></td>

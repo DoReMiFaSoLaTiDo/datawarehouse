@@ -50,68 +50,71 @@ class DwhSetup < Thor
   desc "create dimensions", "create Dimension Tables. Accepts array of model names and model attributes"
   def create_dimensions(opts = {})
     # raise opts['attribs'].inspect
+    tables_created = []
     opts['dimensions'].each_with_index do |tab,idx|
       table_name = tab.downcase.pluralize + "-#{opts['id']}"
       table_attribs = tab.classify.constantize.columns.map{|x| [x.name, x.type.to_s, x.human_name] }
-      wanted_attribs = opts['attribs'][tab].select{ |att| att if att.split('-')[0] == tab.downcase }
-      local_fields = wanted_attribs.map{ |wa| wa.split('-')}.map{ |res| res[1]}
+      wanted_attribs = opts['attribs'][tab].select{ |att| att if att.split('-')[0].downcase.to_sym == tab.downcase.to_sym }
+      if wanted_attribs.any?
+        local_fields = wanted_attribs.map{ |wa| wa.split('-')}.map{ |res| res[1]}
 
-      applicable_attribs = []
-      applicable_attribs.push(table_attribs.select{ |att| att.flatten if local_fields.include?att[0]})
-
-      # raise applicable_attribs.inspect
-      @ar_conn ||= ActiveRecord::Base.connection
-      @ar_conn.create_table(table_name.to_sym)
-      applicable_attribs.each do |attrib|
-        fd = attrib.flatten
-        next if fd[0].eql? 'id'
-        @ar_conn.add_column( table_name.to_sym, fd[0].to_sym, fd[1].to_sym)
-
-      end
-
-      self.populate_blank(table_name)
-
-    #   handle foreign values
-      foreign_attribs = opts['attribs'][tab].select{ |att| att if att.split('-')[0] != tab.downcase }
-      foreign_tabs = foreign_attribs.map{ |fa| fa.split('-')}
-      foreign_tables = foreign_tabs.map(&:first)
-      table_attribs = []
-      tables_attributes = foreign_tables.map { |r| [r, foreign_tabs.map{|s| s[1] if s[0].eql?r }.compact] }
-
-      tables_attributes.each do |tab|
-        table_name = tab[0].downcase.pluralize + "-#{opts['id']}"
-        table_attribs = tab[0].classify.constantize.columns.map{|x| [x.name, x.type.to_s, x.human_name] }
-
-        applicable_attribs = []
-        applicable_attribs.push(table_attribs.select{ |att| att.flatten if tab[1].include?att[0]})
+        applicable_attribs = table_attribs.select{ |att| att.flatten if local_fields.include?att[0].gsub('_','')}
+        # applicable_attribs.push()
 
         @ar_conn ||= ActiveRecord::Base.connection
-        @ar_conn.create_table(table_name.to_sym)
+        if @ar_conn.create_table(table_name.to_sym)
+          tables_created.push(table_name)
+        end
+
         applicable_attribs.each do |attrib|
-          fd = attrib.flatten
+          fd = attrib
           next if fd[0].eql? 'id'
           @ar_conn.add_column( table_name.to_sym, fd[0].to_sym, fd[1].to_sym)
 
         end
-
-        self.populate_blank(table_name)
       end
 
+    #   handle foreign values
+      foreign_attribs = opts['attribs'][tab].select{ |att| att if att.split('-')[0].downcase.to_sym != tab.downcase.to_sym }
+      if foreign_attribs.any?
+        foreign_tabs = foreign_attribs.map{ |fa| fa.split('-')}
+        foreign_tables = foreign_tabs.map(&:first).uniq
 
+        tables_attributes = foreign_tables.map { |r| [r, foreign_tabs.map{|s| s[1] if s[0].eql?r }.compact] }
+        # raise tables_attributes.inspect
+        tables_attributes.each do |tab|
+          table_name = tab[0].downcase.pluralize + "-#{opts['id']}"
+          table_attribs = tab[0].classify.constantize.columns.map{|x| [x.name, x.type.to_s, x.human_name] }
+
+          applicable_attribs = table_attribs.select{ |att| att.flatten if tab[1].include?att[0].gsub('_','')}
+
+          @ar_conn ||= ActiveRecord::Base.connection
+          if @ar_conn.create_table(table_name.to_sym)
+            tables_created.push(table_name)
+          end
+          applicable_attribs.each do |attrib|
+            fd = attrib.flatten
+            next if fd[0].eql? 'id'
+            @ar_conn.add_column( table_name.to_sym, fd[0].to_sym, fd[1].to_sym)
+
+          end
+        end
+      end
     end
-
+    self.populate_blank(tables_created)
   end
 
-  desc "populator", "populates blank table with data"
-  def populate_blank(table_name)
-    model_name = table_name.split('-')
-    my_attribs = get_attributes(table_name).rows.flatten
-    # raise my_attribs.inspect
+  desc "populator", "populates blank table with data. Takes array of table names"
+  def populate_blank(table_names)
+    table_names.each do |table_name|
+      model_name = table_name.split('-')
+      my_attribs = get_attributes(table_name).rows.flatten
+      # raise my_attribs.inspect
 
-    data = model_name[0].classify.constantize.pluck(my_attribs.join(','))
-    @ar_conn ||= ActiveRecord::Base.connection
-    @ar_conn.exec_query("INSERT INTO " + " \"#{table_name}\" " + " SELECT #{my_attribs.join(',')} FROM #{model_name[0]};")
-
+      data = model_name[0].classify.constantize.pluck(my_attribs.join(','))
+      @ar_conn ||= ActiveRecord::Base.connection
+      @ar_conn.exec_query("INSERT INTO " + " \"#{table_name}\" " + " SELECT #{my_attribs.join(',')} FROM #{model_name[0]};")
+    end
   end
 
   desc "update_dependents", "updates dependent tables with data from master table"

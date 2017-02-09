@@ -64,9 +64,10 @@ class BizsController < ApplicationController
           relation["id"] = @biz[:id]
           relation["attribs"] = {}
           @biz[:dimensions].each_with_index do |bd, idx|
-            relation['attribs'][bd] = @biz["measures"][idx].tr('^a-z,-',"").split(',') if bd.eql?@biz["measures"][idx]
+            relation['attribs'][bd] = @biz["measures"][idx].tr('^a-z,-',"").split(',') if @biz["measures"][idx]
           end
           relation["job"] = 'create'
+          raise relation.inspect
           DwhWorker.perform_async(relation)
 
           format.html { redirect_to @biz, notice: 'Biz was successfully created.' }
@@ -132,13 +133,11 @@ class BizsController < ApplicationController
 
         else
           relation = {}
-          #   build relation
-          # relation["fact"] = @biz[:fact]
           relation["dimensions"] = @biz[:dimensions]
           relation["id"] = @biz[:id]
           relation["attribs"] = {}
           @biz[:dimensions].each_with_index do |bd, idx|
-            relation['attribs'][bd] = @biz["measures"][idx].tr('^a-z,-',"").split(',') if bd.eql?@biz["measures"][idx]
+            relation['attribs'][bd] = @biz["measures"][idx].tr('^a-z,-_',"").split(',') if @biz["measures"][idx]
           end
           relation["job"] = 'create'
           # raise relation.inspect
@@ -177,8 +176,10 @@ class BizsController < ApplicationController
     def load_models
       Rails.application.eager_load!
       @my_biz = ActiveRecord::Base.descendants #.map {|klass| [klass.name, klass.column_names, klass.reflections.keys]} #
-      @model_array = @my_biz.map{|klass| [klass.name, klass.column_names, klass.reflections.keys]}
+      # raise @my_biz.inspect
+      # @model_array = @my_biz.map{|klass| [klass.name, klass.column_names, klass.reflections.keys]}
       @my_facts = @my_biz.map{|klass| [klass.name] }
+      @model_array = @my_biz.map{|klass| [klass.name, klass.column_names, klass.reflections.keys]}
       @my_factors = @my_biz.map{|klass| [klass.name, klass.reflect_on_all_associations.map{|klazz| klazz.name}] }
       @potential_facts = @my_factors.select{|kl| kl if kl[1].present?}
       @dimensions = @my_biz.map.with_index {|klass, i| [ if i != 0; klass.name.constantize; else; end  ] }
@@ -255,7 +256,7 @@ class BizsController < ApplicationController
           if bp["biz"]["dimensions_#{col}"].present?
             bp["biz"][:dimensions].push(bp["biz"]["dimensions_#{col}"])
             bp["biz"].delete("dimensions_#{col}")
-            bp["biz"][:measures].push bp["biz"]["measures_"]["#{col}"].to_s if bp["biz"]["measures_"]["#{col}"].present?
+            bp["biz"][:measures].push bp["biz"]["measures_"]["#{col}"].join(', ') if bp["biz"]["measures_"]["#{col}"].present?
           else
             bp["biz"].delete("dimensions_#{col}")
           end

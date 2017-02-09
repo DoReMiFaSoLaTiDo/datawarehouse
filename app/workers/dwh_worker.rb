@@ -39,11 +39,13 @@ class DwhWorker
   def self.read_tables
     last_scan, @@last_check_time = @@last_check_time, Time.current
 
-    unique_fact = Biz.pluck(:fact).uniq
-    unique_dimensions = Biz.pluck(:dimensions).flatten.uniq
-    all_tables = unique_fact | unique_dimensions
+    # only created tables need to be updated
     etl_tables = []
-    all_tables.each do |model_klass|
+    @ar_conn ||= ActiveRecord::Base.connection
+    the_tables = @ar_conn.tables.select{ |tt| tt if tt[/\d/]}
+    the_models = the_tables.map{|tab| tab.split('-')[0].singularize}.uniq
+
+    the_models.each do |model_klass|
 
       record = model_klass.classify.constantize.where(updated_at: (last_scan..Time.current ) )
       if record.any?
@@ -53,32 +55,19 @@ class DwhWorker
     end
 
     if etl_tables.any?
-      @ar_conn = ActiveRecord::Base.connection
+      @ar_conn ||= ActiveRecord::Base.connection
       the_tables = @ar_conn.tables
       self.set_busy
       self.set_tasks_todo(etl_tables.size)
       etl_tables.each do |tab|
+        my_tables = the_tables.select{ |tt| tt if tt[/\d/] && tt.start_with?(tab)}
+        my_tables.unshift(tab)
         subject = {}
         subject["job"] = "bulk_update"
-        my_tables = the_tables.select{ |tt| tt if tt[/\d/] && tt.start_with?(tab)}
-        if my_tables.any?
-          my_tables.unshift(tab)
-        end
         subject["table"] = my_tables
         perform_async(subject)
       end
     end
-
-    # if etl_tables.any?
-    #   self.set_busy
-    #   self.set_tasks_todo(etl_tables.size)
-    #   etl_tables.each do |tab|
-    #     subject = {}
-    #     subject["job"] = "bulk_update"
-    #     subject["table"] = tab
-    #     perform_async(subject)
-    #   end
-    # end
 
     Rails.logger.info("Fact and Dimension tables updated at #{Time.current}")
 
@@ -101,7 +90,17 @@ class DwhWorker
 
     requested_action = opts["job"]
     case requested_action
+
       when "bulk_update"
+        @dw ||= DwhSetup.new
+        @dw.updator(opts['table'], self.class.get_last_scan)
+        puts "Data Table loaded for #{opts['table']}"
+        self.class.decrement
+        if self.class.get_tasks_todo == 0
+          self.class.complete
+        end
+
+      when "bulk_update_old"
         @dw ||= DwhSetup.new
         @dw.bulk_insert_update(opts['table'], self.class.get_last_scan)
         puts "Data Table loaded for #{opts['table']}"
@@ -113,8 +112,8 @@ class DwhWorker
       when "create"
         # raise opts.inspect
         @dw ||= DwhSetup.new
-        @dw.create_dimensions(opts)
-        puts "New Schemas created for #{opts['fact']}"
+        res = @dw.create_dimensions(opts)
+        puts "New Schemas created for #{res}"
 
       when "create_old"
         # raise opts.inspect

@@ -1,0 +1,3 @@
+class DwhTable
+
+end
