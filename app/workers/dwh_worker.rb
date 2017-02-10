@@ -65,6 +65,7 @@ class DwhWorker
         subject = {}
         subject["job"] = "bulk_update"
         subject["table"] = my_tables
+        subject['last_scan'] = last_scan
         perform_async(subject)
       end
     end
@@ -93,7 +94,7 @@ class DwhWorker
 
       when "bulk_update"
         @dw ||= DwhSetup.new
-        @dw.updator(opts['table'], self.class.get_last_scan)
+        @dw.updator(opts['table'], opts['last_scan'])
         puts "Data Table loaded for #{opts['table']}"
         self.class.decrement
         if self.class.get_tasks_todo == 0
