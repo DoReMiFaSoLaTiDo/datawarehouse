@@ -39,36 +39,52 @@ class DwhWorker
   def self.read_tables
     last_scan, @@last_check_time = @@last_check_time, Time.current
 
-    # only created tables need to be updated
-    etl_tables = []
-    @ar_conn ||= ActiveRecord::Base.connection
-    the_tables = @ar_conn.tables.select{ |tt| tt if tt[/\d/]}
-    the_models = the_tables.map{|tab| tab.split('-')[0].singularize}.uniq
+    the_ids = Biz.pluck(:id)
 
-    the_models.each do |model_klass|
-
-      record = model_klass.classify.constantize.where(updated_at: (last_scan..Time.current ) )
-      if record.any?
-        puts "record found for #{model_klass}"
-        etl_tables.push(model_klass)
-      end
-    end
-
-    if etl_tables.any?
-      @ar_conn ||= ActiveRecord::Base.connection
-      the_tables = @ar_conn.tables
+    if the_ids.any?
       self.set_busy
-      self.set_tasks_todo(etl_tables.size)
-      etl_tables.each do |tab|
-        my_tables = the_tables.select{ |tt| tt if tt[/\d/] && tt.start_with?(tab)}
-        my_tables.unshift(tab)
+      self.set_tasks_todo(the_ids.size)
+      the_ids.each do |biz_id|
         subject = {}
-        subject["job"] = "bulk_update"
-        subject["table"] = my_tables
+        subject["job"] = "do_update"
+        subject["id"] = biz_id
         subject['last_scan'] = last_scan
         perform_async(subject)
       end
     end
+
+
+
+    # only created tables need to be updated
+    # etl_tables = []
+    # @ar_conn ||= ActiveRecord::Base.connection
+    # the_tables = @ar_conn.tables.select{ |tt| tt if tt[/\d/]}
+    # the_models = the_tables.map{|tab| tab.split('-')[0].singularize}.uniq
+    #
+    # the_models.each do |model_klass|
+    #
+    #   record = model_klass.classify.constantize.where(updated_at: (last_scan..Time.current ) )
+    #   if record.any?
+    #     puts "record found for #{model_klass}"
+    #     etl_tables.push(model_klass)
+    #   end
+    # end
+    #
+    # if etl_tables.any?
+    #   @ar_conn ||= ActiveRecord::Base.connection
+    #   the_tables = @ar_conn.tables
+    #   self.set_busy
+    #   self.set_tasks_todo(etl_tables.size)
+    #   etl_tables.each do |tab|
+    #     my_tables = the_tables.select{ |tt| tt if tt[/\d/] && tt.start_with?(tab)}
+    #     my_tables.unshift(tab)
+    #     subject = {}
+    #     subject["job"] = "bulk_update"
+    #     subject["table"] = my_tables
+    #     subject['last_scan'] = last_scan
+    #     perform_async(subject)
+    #   end
+    # end
 
     Rails.logger.info("Fact and Dimension tables updated at #{Time.current}")
 
@@ -101,6 +117,15 @@ class DwhWorker
           self.class.complete
         end
 
+      when "do_update"
+        @dw ||= DwhSetup.new
+        @dw.update_tables(opts['id'], opts['last_scan'])
+        puts "Data Tables updated for #{opts['id']}"
+        self.class.decrement
+        if self.class.get_tasks_todo == 0
+          self.class.complete
+        end
+
       when "bulk_update_old"
         @dw ||= DwhSetup.new
         @dw.bulk_insert_update(opts['table'], self.class.get_last_scan)
@@ -114,6 +139,7 @@ class DwhWorker
         # raise opts.inspect
         @dw ||= DwhSetup.new
         res = @dw.create_dimensions(opts)
+        @dw.create_fact(opts)
         puts "New Schemas created for #{res}"
 
       when "create_old"
